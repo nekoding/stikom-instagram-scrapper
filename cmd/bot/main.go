@@ -19,7 +19,7 @@ type AccountInfoList struct {
 
 type Post struct {
 	gorm.Model
-	FeedID          string
+	FeedID          string `gorm:"index"`
 	AccountName     string
 	AccountUsername string
 	Description     string `gorm:"type:longtext"`
@@ -27,7 +27,9 @@ type Post struct {
 	Source          string
 }
 
-func saveToDatabase(feed scrapper.FeedInstagram, db *gorm.DB) {
+func saveToDatabase(feed scrapper.FeedInstagram, db *gorm.DB, wg *sync.WaitGroup) {
+	defer wg.Done()
+
 	imgs, _ := json.Marshal(feed.Images)
 
 	post := &Post{
@@ -50,9 +52,13 @@ func scrapeFeedInstagram(insta *goinsta.Instagram, account string, db *gorm.DB, 
 		log.Panic(err)
 	}
 
+	var lwg sync.WaitGroup
 	for _, feed := range feeds {
-		saveToDatabase(feed, db)
+		lwg.Add(1)
+		go saveToDatabase(feed, db, &lwg)
 	}
+
+	lwg.Wait()
 }
 
 func main() {
