@@ -13,7 +13,7 @@ git clone https://github.com/nekoding/stikombali-instagram && cd stikombali-inst
 Inside root folder run this command
 
 ```sh
-go build cmd/bot/main.go`
+go build cmd/bot/main.go
 ```
 
 or if you want just testing it you can run this command
